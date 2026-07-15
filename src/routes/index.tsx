@@ -492,12 +492,48 @@ function Index() {
               © {new Date().getFullYear()} KA LAB Growth. Todos os direitos reservados.
             </span>
           </div>
-          <p className="text-xs uppercase tracking-[0.3em] text-gold/80">
-            Growth & Revenue Consulting
-          </p>
+
+          <nav aria-label="Rodapé" className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            {navLinks.map((l) => (
+              <a key={l.href} href={l.href} className="hover:text-gold transition">
+                {l.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <SocialIcon href={LINKEDIN_URL} label="LinkedIn da KA LAB Growth">
+              <Linkedin size={16} />
+            </SocialIcon>
+            <SocialIcon href={INSTAGRAM_URL} label="Instagram da KA LAB Growth">
+              <Instagram size={16} />
+            </SocialIcon>
+          </div>
         </div>
       </footer>
     </div>
+  );
+}
+
+function SocialIcon({
+  href,
+  label,
+  children,
+}: {
+  href: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gold/50 text-gold hover:bg-gold hover:text-primary-foreground transition"
+    >
+      {children}
+    </a>
   );
 }
 
@@ -524,3 +560,4 @@ function Field({
     </div>
   );
 }
+
