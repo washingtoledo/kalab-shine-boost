@@ -148,30 +148,89 @@ const philosophy = [
 ];
 
 function Index() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* NAV */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-background/70 border-b border-border/60">
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/60">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <a href="#top" className="flex items-center gap-3">
+          <a href="#top" className="flex items-center gap-3" onClick={closeMenu}>
             <img src={logoAsset.url} alt="KA LAB Growth" className="h-11 w-11 rounded-full" />
             <span className="font-display text-lg tracking-wide">
               KA <span className="text-gold-gradient">LAB</span>
             </span>
           </a>
+
           <ul className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-            <li><a href="#manifesto" className="hover:text-gold transition">Essência</a></li>
-            <li><a href="#servicos" className="hover:text-gold transition">Serviços</a></li>
-            <li><a href="#jornada" className="hover:text-gold transition">Jornada</a></li>
-            <li><a href="#filosofia" className="hover:text-gold transition">Filosofia</a></li>
+            {navLinks.map((l) => (
+              <li key={l.href}>
+                <a href={l.href} className="hover:text-gold transition">
+                  {l.label}
+                </a>
+              </li>
+            ))}
           </ul>
-          <a
-            href="#contato"
-            className="btn-gold rounded-full px-5 py-2 text-sm font-medium"
+
+          <div className="hidden md:flex items-center gap-3">
+            <SocialIcon href={LINKEDIN_URL} label="LinkedIn da KA LAB Growth">
+              <Linkedin size={16} />
+            </SocialIcon>
+            <SocialIcon href={INSTAGRAM_URL} label="Instagram da KA LAB Growth">
+              <Instagram size={16} />
+            </SocialIcon>
+            <a href="#contato" className="btn-gold rounded-full px-5 py-2 text-sm font-medium">
+              Falar com a KA
+            </a>
+          </div>
+
+          <button
+            type="button"
+            aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={menuOpen}
+            className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-gold/50 text-gold"
+            onClick={() => setMenuOpen((v) => !v)}
           >
-            Falar com a KA
-          </a>
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </nav>
+
+        {/* Mobile menu */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-border/60 bg-background/95 backdrop-blur-md">
+            <ul className="flex flex-col px-6 py-4 gap-1">
+              {navLinks.map((l) => (
+                <li key={l.href}>
+                  <a
+                    href={l.href}
+                    onClick={closeMenu}
+                    className="block py-3 text-base text-foreground hover:text-gold border-b border-border/40"
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center justify-between gap-3 px-6 pb-6">
+              <div className="flex items-center gap-3">
+                <SocialIcon href={LINKEDIN_URL} label="LinkedIn da KA LAB Growth">
+                  <Linkedin size={16} />
+                </SocialIcon>
+                <SocialIcon href={INSTAGRAM_URL} label="Instagram da KA LAB Growth">
+                  <Instagram size={16} />
+                </SocialIcon>
+              </div>
+              <a
+                href="#contato"
+                onClick={closeMenu}
+                className="btn-gold rounded-full px-5 py-2 text-sm font-medium"
+              >
+                Falar com a KA
+              </a>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* HERO */}
