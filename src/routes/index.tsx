@@ -1,5 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { Linkedin, Instagram, Menu, X } from "lucide-react";
 import logoAsset from "@/assets/ka-lab-logo.asset.json";
+
+const LINKEDIN_URL = "https://www.linkedin.com/company/kalabgrowth";
+const INSTAGRAM_URL = "https://www.instagram.com/kalabgrowth";
+
+const navLinks = [
+  { href: "#manifesto", label: "Essência" },
+  { href: "#servicos", label: "Serviços" },
+  { href: "#jornada", label: "Jornada" },
+  { href: "#filosofia", label: "Filosofia" },
+  { href: "#contato", label: "Contato" },
+];
 
 export const Route = createFileRoute("/")({
   component: Index,
