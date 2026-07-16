@@ -29,20 +29,20 @@ export const Route = createFileRoute("/")({
         content:
           "consultoria growth, revops, consultoria b2b, ABM, CRM, funil comercial, diversidade, liderança negra, LGBTQIA+, KA Lab, KA Lab Growth",
       },
-      { property: "og:title", content: "KA LAB Growth — Growth & RevOps para lideranças diversas" },
+      { property: "og:title", content: "KA LAB Growth — Consultoria em Growth e RevOps para líderes negros e LGBTQIA+" },
       {
         property: "og:description",
         content:
-          "Escalamos empresas B2B lideradas por pessoas negras e LGBTQIA+ com inteligência em Growth, RevOps e ABM.",
+          "Consultoria B2B em Growth, RevOps e ABM para empresas lideradas por pessoas negras e LGBTQIA+. Diagnóstico, Sprint Revenue System e Advisory estratégico para escalar receita com dados.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/" },
       { property: "og:image", content: logoAsset.url },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "KA LAB Growth" },
+      { name: "twitter:title", content: "KA LAB Growth — Consultoria em Growth e RevOps para líderes negros e LGBTQIA+" },
       {
         name: "twitter:description",
-        content: "Growth & RevOps para empresas B2B lideradas por pessoas negras e LGBTQIA+.",
+        content: "Consultoria B2B em Growth, RevOps e ABM para empresas lideradas por pessoas negras e LGBTQIA+. Diagnóstico, Sprint Revenue System e Advisory estratégico para escalar receita com dados.",
       },
       { name: "twitter:image", content: logoAsset.url },
     ],

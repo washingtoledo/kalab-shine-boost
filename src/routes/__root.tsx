@@ -77,21 +77,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "KA LAB Growth — Consultoria em Growth & RevOps" },
+      { title: "KA LAB Growth — Consultoria em Growth e RevOps para líderes negros e LGBTQIA+" },
       {
         name: "description",
         content:
-          "Consultoria em Growth e RevOps para empresas B2B lideradas por pessoas negras e LGBTQIA+.",
+          "Consultoria B2B em Growth, RevOps e ABM para empresas lideradas por pessoas negras e LGBTQIA+. Diagnóstico, Sprint Revenue System e Advisory estratégico para escalar receita com dados.",
       },
       { name: "author", content: "KA LAB Growth" },
       { name: "theme-color", content: "#0a0a0a" },
       { property: "og:site_name", content: "KA LAB Growth" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "KA LAB Growth — Consultoria em Growth e RevOps para líderes negros e LGBTQIA+" },
+      { name: "twitter:title", content: "KA LAB Growth — Consultoria em Growth e RevOps para líderes negros e LGBTQIA+" },
+      { property: "og:description", content: "Consultoria B2B em Growth, RevOps e ABM para empresas lideradas por pessoas negras e LGBTQIA+. Diagnóstico, Sprint Revenue System e Advisory estratégico para escalar receita com dados." },
+      { name: "twitter:description", content: "Consultoria B2B em Growth, RevOps e ABM para empresas lideradas por pessoas negras e LGBTQIA+. Diagnóstico, Sprint Revenue System e Advisory estratégico para escalar receita com dados." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d04faff4-044b-4d33-a0dc-559303a29487/id-preview-d68e51af--1bf804cc-7aec-4d1f-9ba2-212bf692a10a.lovable.app-1784114495088.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d04faff4-044b-4d33-a0dc-559303a29487/id-preview-d68e51af--1bf804cc-7aec-4d1f-9ba2-212bf692a10a.lovable.app-1784114495088.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
