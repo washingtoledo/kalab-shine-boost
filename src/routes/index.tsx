@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Linkedin, Instagram, Menu, X } from "lucide-react";
-import logoAsset from "@/assets/ka-lab-logo.asset.json";
+const logoAsset = { url: '/logo.png' };
 
 const LINKEDIN_URL = "https://www.linkedin.com/company/kalabgrowth";
 const INSTAGRAM_URL = "https://www.instagram.com/kalabgrowth";
