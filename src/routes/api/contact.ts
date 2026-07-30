@@ -3,6 +3,8 @@ import type {} from "@tanstack/react-start";
 
 const HUBSPOT_API = "https://api.hubapi.com";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 type Payload = {
   nome?: string;
   sobrenome?: string;
@@ -20,20 +22,36 @@ function json(body: unknown, status = 200) {
   });
 }
 
+/** Loga o erro completo e monta a resposta JSON, detalhada em dev e genérica em prod. */
+function hubspotError(message: string, err: unknown, status = 502) {
+  const detail =
+    (err as { response?: { data?: unknown } })?.response?.data ||
+    (err instanceof Error ? err.message : undefined) ||
+    err;
+  console.error(message, detail);
+  return json(
+    isDev ? { error: message, detail: typeof detail === "string" ? detail : JSON.stringify(detail) } : { error: message },
+    status,
+  );
+}
+
 export const Route = createFileRoute("/api/contact")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Valida existência do token antes de qualquer chamada ao HubSpot.
         const token = process.env.HUBSPOT_ACCESS_TOKEN;
         if (!token) {
-          return json({ error: "Integração com HubSpot não configurada." }, 500);
+          const err = "HUBSPOT_ACCESS_TOKEN não definido nas variáveis de ambiente.";
+          console.error(err);
+          return json(isDev ? { error: err } : { error: "Integração com HubSpot não configurada." }, 500);
         }
 
         let data: Payload;
         try {
           data = (await request.json()) as Payload;
-        } catch {
-          return json({ error: "Requisição inválida." }, 400);
+        } catch (err) {
+          return hubspotError("Requisição inválida (JSON malformado).", err, 400);
         }
 
         const nome = (data.nome ?? "").trim().slice(0, 100);
@@ -91,14 +109,20 @@ export const Route = createFileRoute("/api/contact")({
               );
               if (!updateRes.ok) {
                 const updateError = await updateRes.text();
-                console.error(`HubSpot update failed [${updateRes.status}]: ${updateError}`);
-                return json({ error: "Não foi possível atualizar seu contato." }, 502);
+                return hubspotError(
+                  `HubSpot update failed [${updateRes.status}]`,
+                  { response: { data: updateError } },
+                  502,
+                );
               }
               const body = (await updateRes.json()) as { id?: string };
               contactId = body.id ?? null;
             } else {
-              console.error(`HubSpot create failed [${createRes.status}]: ${errorBody}`);
-              return json({ error: "Não foi possível enviar seu contato." }, 502);
+              return hubspotError(
+                `HubSpot create failed [${createRes.status}]`,
+                { response: { data: errorBody } },
+                502,
+              );
             }
           }
 
@@ -166,14 +190,14 @@ export const Route = createFileRoute("/api/contact")({
             const dealBody = (await dealRes.json()) as { id?: string };
             dealId = dealBody.id ?? null;
           } catch (dealErr) {
-            // O contato já foi salvo — não falhamos o envio por causa do deal.
+            // O contato já foi salvo — não falhamos o envio por causa do deal,
+            // mas logamos o erro completo para diagnóstico.
             console.error("HubSpot deal creation failed", dealErr);
           }
 
           return json({ success: true, created, contactId, dealId });
         } catch (err) {
-          console.error("HubSpot request error", err);
-          return json({ error: "Falha de comunicação com o HubSpot." }, 502);
+          return hubspotError("Falha de comunicação com o HubSpot.", err, 502);
         }
       },
     },
