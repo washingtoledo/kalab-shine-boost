@@ -65,6 +65,8 @@ export const Route = createFileRoute("/api/contact")({
           "Content-Type": "application/json",
         };
 
+        let contactId: string | null = null;
+
         try {
           // Cria; se já existir (409), atualiza pelo e-mail — evita duplicados.
           const createRes = await fetch(`${HUBSPOT_API}/crm/v3/objects/contacts`, {
@@ -73,25 +75,102 @@ export const Route = createFileRoute("/api/contact")({
             body: JSON.stringify({ properties }),
           });
 
+          let created = false;
+
           if (createRes.ok) {
-            return json({ success: true, created: true });
+            const body = (await createRes.json()) as { id?: string };
+            contactId = body.id ?? null;
+            created = true;
+          } else {
+            const errorBody = await createRes.text();
+
+            if (createRes.status === 409) {
+              const updateRes = await fetch(
+                `${HUBSPOT_API}/crm/v3/objects/contacts/${encodeURIComponent(email)}?idProperty=email`,
+                { method: "PATCH", headers, body: JSON.stringify({ properties }) },
+              );
+              if (!updateRes.ok) {
+                const updateError = await updateRes.text();
+                console.error(`HubSpot update failed [${updateRes.status}]: ${updateError}`);
+                return json({ error: "Não foi possível atualizar seu contato." }, 502);
+              }
+              const body = (await updateRes.json()) as { id?: string };
+              contactId = body.id ?? null;
+            } else {
+              console.error(`HubSpot create failed [${createRes.status}]: ${errorBody}`);
+              return json({ error: "Não foi possível enviar seu contato." }, 502);
+            }
           }
 
-          const errorBody = await createRes.text();
+          // Deal no pipeline "Novos Leads", associado ao contato.
+          let dealId: string | null = null;
+          try {
+            const pipelinesRes = await fetch(`${HUBSPOT_API}/crm/v3/pipelines/deals`, { headers });
+            if (!pipelinesRes.ok) {
+              const body = await pipelinesRes.text();
+              throw new Error(`pipelines [${pipelinesRes.status}]: ${body}`);
+            }
+            const pipelines = (await pipelinesRes.json()) as {
+              results?: Array<{
+                id: string;
+                label: string;
+                stages?: Array<{ id: string; label: string; displayOrder: number }>;
+              }>;
+            };
+            const pipeline =
+              pipelines.results?.find(
+                (p) => p.label.trim().toLowerCase() === "novos leads",
+              ) ?? null;
 
-          if (createRes.status === 409) {
-            const updateRes = await fetch(
-              `${HUBSPOT_API}/crm/v3/objects/contacts/${encodeURIComponent(email)}?idProperty=email`,
-              { method: "PATCH", headers, body: JSON.stringify({ properties }) },
-            );
-            if (updateRes.ok) return json({ success: true, created: false });
-            const updateError = await updateRes.text();
-            console.error(`HubSpot update failed [${updateRes.status}]: ${updateError}`);
-            return json({ error: "Não foi possível atualizar seu contato." }, 502);
+            if (!pipeline) {
+              throw new Error('pipeline "Novos Leads" não encontrado');
+            }
+
+            const firstStage = [...(pipeline.stages ?? [])].sort(
+              (a, b) => a.displayOrder - b.displayOrder,
+            )[0];
+
+            const dealPayload = {
+              properties: {
+                dealname: `${empresa} - ${[nome, sobrenome].filter(Boolean).join(" ")}`,
+                pipeline: pipeline.id,
+                ...(firstStage ? { dealstage: firstStage.id } : {}),
+              },
+              ...(contactId
+                ? {
+                    associations: [
+                      {
+                        to: { id: contactId },
+                        types: [
+                          {
+                            associationCategory: "HUBSPOT_DEFINED",
+                            // deal_to_contact
+                            associationTypeId: 3,
+                          },
+                        ],
+                      },
+                    ],
+                  }
+                : {}),
+            };
+
+            const dealRes = await fetch(`${HUBSPOT_API}/crm/v3/objects/deals`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify(dealPayload),
+            });
+            if (!dealRes.ok) {
+              const body = await dealRes.text();
+              throw new Error(`deal [${dealRes.status}]: ${body}`);
+            }
+            const dealBody = (await dealRes.json()) as { id?: string };
+            dealId = dealBody.id ?? null;
+          } catch (dealErr) {
+            // O contato já foi salvo — não falhamos o envio por causa do deal.
+            console.error("HubSpot deal creation failed", dealErr);
           }
 
-          console.error(`HubSpot create failed [${createRes.status}]: ${errorBody}`);
-          return json({ error: "Não foi possível enviar seu contato." }, 502);
+          return json({ success: true, created, contactId, dealId });
         } catch (err) {
           console.error("HubSpot request error", err);
           return json({ error: "Falha de comunicação com o HubSpot." }, 502);
