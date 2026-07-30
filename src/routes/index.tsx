@@ -149,6 +149,8 @@ const philosophy = [
 
 function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [feedback, setFeedback] = useState("");
   const closeMenu = () => setMenuOpen(false);
 
   return (
@@ -429,22 +431,40 @@ function Index() {
 
           <form
             className="mt-12 space-y-5 rounded-2xl border border-border bg-card p-8"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
               const form = e.currentTarget as HTMLFormElement;
-              const data = new FormData(form);
-              const subject = encodeURIComponent("Novo contato — KA LAB Growth");
-              const body = encodeURIComponent(
-                Array.from(data.entries())
-                  .map(([k, v]) => `${k}: ${v}`)
-                  .join("\n"),
-              );
-              window.location.href = `mailto:contato@kalabgrowth.com?subject=${subject}&body=${body}`;
+              const data = Object.fromEntries(new FormData(form).entries());
+              setStatus("loading");
+              setFeedback("");
+              try {
+                const res = await fetch("/api/contact", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(data),
+                });
+                const body = (await res.json().catch(() => ({}))) as {
+                  success?: boolean;
+                  error?: string;
+                };
+                if (res.ok && body.success) {
+                  form.reset();
+                  setStatus("success");
+                  setFeedback("Contato enviado com sucesso! Em breve retornaremos.");
+                } else {
+                  setStatus("error");
+                  setFeedback(body.error ?? "Não foi possível enviar. Tente novamente.");
+                }
+              } catch {
+                setStatus("error");
+                setFeedback("Falha de conexão. Tente novamente.");
+              }
             }}
           >
             <div className="grid gap-5 md:grid-cols-2">
               <Field label="Nome*" name="nome" required />
               <Field label="Sobrenome" name="sobrenome" />
+              <Field label="Empresa*" name="empresa" required />
               <Field label="Email*" name="email" type="email" required />
               <Field label="Telefone" name="telefone" type="tel" />
             </div>
@@ -460,7 +480,7 @@ function Index() {
                 <option value="">Selecione…</option>
                 <option>Diagnóstico Revenue Growth</option>
                 <option>Sprint Revenue System</option>
-                <option>Advisory Growth & RevOps</option>
+                <option>Advisory Growth &amp; RevOps</option>
               </select>
             </div>
             <div>
@@ -475,10 +495,19 @@ function Index() {
             </div>
             <button
               type="submit"
-              className="btn-gold w-full rounded-full py-3 text-sm font-medium"
+              disabled={status === "loading"}
+              className="btn-gold w-full rounded-full py-3 text-sm font-medium disabled:opacity-60"
             >
-              Enviar
+              {status === "loading" ? "Enviando…" : "Enviar"}
             </button>
+            {feedback && (
+              <p
+                role="status"
+                className={`text-center text-sm ${status === "success" ? "text-gold" : "text-destructive"}`}
+              >
+                {feedback}
+              </p>
+            )}
           </form>
         </div>
       </section>
