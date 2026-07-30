@@ -149,6 +149,8 @@ const philosophy = [
 
 function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [feedback, setFeedback] = useState("");
   const closeMenu = () => setMenuOpen(false);
 
   return (
