@@ -41,6 +41,8 @@ export const Route = createFileRoute("/api/contact")({
       POST: async ({ request }) => {
         // Valida existência do token antes de qualquer chamada ao HubSpot.
         const token = process.env.HUBSPOT_ACCESS_TOKEN;
+        console.log("Token carregado:", token?.slice(0, 12));
+        console.log("Comprimento:", token?.length);
         if (!token) {
           const err = "HUBSPOT_ACCESS_TOKEN não definido nas variáveis de ambiente.";
           console.error(err);
