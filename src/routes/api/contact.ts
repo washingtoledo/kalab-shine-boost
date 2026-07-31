@@ -75,15 +75,29 @@ export const Route = createFileRoute("/api/contact")({
           ...(sobrenome ? { lastname: sobrenome } : {}),
           company: empresa,
           ...(telefone ? { phone: telefone } : {}),
-          ...(mensagem || produto
-            ? { message: [produto ? `Produto de interesse: ${produto}` : "", mensagem].filter(Boolean).join("\n\n") }
-            : {}),
         };
 
         const headers = {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
+
+        /** Associação oficial v4 usando labels default entre dois objetos. */
+        async function associateDefault(
+          fromType: string,
+          fromId: string,
+          toType: string,
+          toId: string,
+        ) {
+          const res = await fetch(
+            `${HUBSPOT_API}/crm/v4/objects/${fromType}/${fromId}/associations/default/${toType}/${toId}`,
+            { method: "PUT", headers },
+          );
+          if (!res.ok) {
+            const body = await res.text();
+            throw new Error(`association ${fromType}->${toType} [${res.status}]: ${body}`);
+          }
+        }
 
         let contactId: string | null = null;
 
@@ -128,7 +142,7 @@ export const Route = createFileRoute("/api/contact")({
             }
           }
 
-          // Deal no pipeline "Novos Leads", associado ao contato.
+          // Deal no pipeline "Novos Leads", associado ao contato via Associations API v4.
           let dealId: string | null = null;
           try {
             const pipelinesRes = await fetch(`${HUBSPOT_API}/crm/v3/pipelines/deals`, { headers });
@@ -161,23 +175,9 @@ export const Route = createFileRoute("/api/contact")({
                 dealname: `${empresa} - ${[nome, sobrenome].filter(Boolean).join(" ")}`,
                 pipeline: pipeline.id,
                 ...(firstStage ? { dealstage: firstStage.id } : {}),
+                // "Qual produto tem mais interesse?" -> Descrição do negócio
+                ...(produto ? { description: produto } : {}),
               },
-              ...(contactId
-                ? {
-                    associations: [
-                      {
-                        to: { id: contactId },
-                        types: [
-                          {
-                            associationCategory: "HUBSPOT_DEFINED",
-                            // deal_to_contact
-                            associationTypeId: 3,
-                          },
-                        ],
-                      },
-                    ],
-                  }
-                : {}),
             };
 
             const dealRes = await fetch(`${HUBSPOT_API}/crm/v3/objects/deals`, {
@@ -191,16 +191,53 @@ export const Route = createFileRoute("/api/contact")({
             }
             const dealBody = (await dealRes.json()) as { id?: string };
             dealId = dealBody.id ?? null;
+
+            // Associação explícita Contato <-> Deal (não depende do payload de criação).
+            if (dealId && contactId) {
+              await associateDefault("deals", dealId, "contacts", contactId);
+            }
           } catch (dealErr) {
-            // O contato já foi salvo — não falhamos o envio por causa do deal,
-            // mas logamos o erro completo para diagnóstico.
+            // O contato já foi salvo — não falhamos o envio por causa do deal.
             console.error("HubSpot deal creation failed", dealErr);
           }
 
-          return json({ success: true, created, contactId, dealId });
+          // "Informações adicionais" -> Nota associada ao contato e ao deal.
+          let noteId: string | null = null;
+          if (mensagem) {
+            try {
+              const noteRes = await fetch(`${HUBSPOT_API}/crm/v3/objects/notes`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                  properties: {
+                    hs_note_body: mensagem,
+                    hs_timestamp: new Date().toISOString(),
+                  },
+                }),
+              });
+              if (!noteRes.ok) {
+                const body = await noteRes.text();
+                throw new Error(`note [${noteRes.status}]: ${body}`);
+              }
+              const noteBody = (await noteRes.json()) as { id?: string };
+              noteId = noteBody.id ?? null;
+
+              if (noteId && contactId) {
+                await associateDefault("notes", noteId, "contacts", contactId);
+              }
+              if (noteId && dealId) {
+                await associateDefault("notes", noteId, "deals", dealId);
+              }
+            } catch (noteErr) {
+              console.error("HubSpot note creation failed", noteErr);
+            }
+          }
+
+          return json({ success: true, created, contactId, dealId, noteId });
         } catch (err) {
           return hubspotError("Falha de comunicação com o HubSpot.", err, 502);
         }
+
       },
     },
   },
