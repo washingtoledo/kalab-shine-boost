@@ -292,9 +292,6 @@ function Index() {
                   <p className="text-[0.65rem] uppercase tracking-[0.35em] text-gold">
                     Liderança KA LAB
                   </p>
-                  <p className="mt-2 font-display text-2xl text-foreground">
-                    Estratégia com rosto, dados com propósito
-                  </p>
                 </figcaption>
               </div>
             </figure>
