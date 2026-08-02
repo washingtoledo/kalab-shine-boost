@@ -265,15 +265,41 @@ function Index() {
             </div>
           </div>
 
-          <div className="relative flex justify-center">
-            <div className="absolute inset-0 -z-10 blur-3xl opacity-40"
-                 style={{ background: "var(--gradient-gold)" }} />
-            <img
-              src={fundadorAsset.url}
-              alt="Fundador da KA LAB Growth"
-              className="w-72 md:w-96 rounded-2xl object-cover drop-shadow-[0_20px_80px_rgba(212,175,55,0.35)]"
+          <div className="relative flex justify-center lg:justify-end">
+            <div
+              className="pointer-events-none absolute -inset-10 -z-10 blur-3xl opacity-30"
+              style={{ background: "var(--gradient-gold)" }}
             />
+            <figure className="relative w-full max-w-md lg:max-w-none">
+              <div className="relative overflow-hidden rounded-[2rem] border border-gold/30 bg-card shadow-[0_30px_120px_-20px_rgba(212,175,55,0.35)]">
+                <img
+                  src={fundadorAsset.url}
+                  alt="Fundador da KA LAB Growth"
+                  className="aspect-[4/5] w-full object-cover object-[50%_18%] grayscale-[15%] contrast-105"
+                  loading="eager"
+                />
+                {/* Fade inferior para integrar a foto ao fundo preto */}
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
+                  style={{
+                    background:
+                      "linear-gradient(to top, var(--background) 4%, color-mix(in oklab, var(--background) 55%, transparent) 45%, transparent 85%)",
+                  }}
+                />
+                {/* Traço dourado sutil */}
+                <div className="pointer-events-none absolute inset-x-8 bottom-24 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
+                <figcaption className="absolute inset-x-0 bottom-0 p-8">
+                  <p className="text-[0.65rem] uppercase tracking-[0.35em] text-gold">
+                    Liderança KA LAB
+                  </p>
+                  <p className="mt-2 font-display text-2xl text-foreground">
+                    Estratégia com rosto, dados com propósito
+                  </p>
+                </figcaption>
+              </div>
+            </figure>
           </div>
+
 
         </div>
       </section>
