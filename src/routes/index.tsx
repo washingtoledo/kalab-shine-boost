@@ -158,12 +158,10 @@ function Index() {
       {/* NAV */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/60">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <a href="#top" className="flex items-center gap-3" onClick={closeMenu}>
-            <img src={logoAsset.url} alt="KA LAB Growth" className="h-11 w-11 rounded-full" />
-            <span className="font-display text-lg tracking-wide">
-              KA <span className="text-gold-gradient">LAB</span>
-            </span>
+          <a href="#top" className="flex items-center" onClick={closeMenu} aria-label="KA LAB Growth">
+            <img src={logoAsset.url} alt="KA LAB Growth" className="h-16 w-16 md:h-20 md:w-20 rounded-full object-contain" />
           </a>
+
 
           <ul className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             {navLinks.map((l) => (
