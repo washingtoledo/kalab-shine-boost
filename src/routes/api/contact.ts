@@ -144,6 +144,7 @@ export const Route = createFileRoute("/api/contact")({
 
           // Deal no pipeline "Novos Leads", associado ao contato via Associations API v4.
           let dealId: string | null = null;
+          let dealError: string | null = null;
           try {
             const pipelinesRes = await fetch(`${HUBSPOT_API}/crm/v3/pipelines/deals`, { headers });
             if (!pipelinesRes.ok) {
@@ -154,16 +155,26 @@ export const Route = createFileRoute("/api/contact")({
               results?: Array<{
                 id: string;
                 label: string;
+                displayOrder?: number;
                 stages?: Array<{ id: string; label: string; displayOrder: number }>;
               }>;
             };
+            const all = pipelines.results ?? [];
+            const norm = (s: string) =>
+              s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+            // "Novos Leads" quando existir; senão o pipeline default da conta.
             const pipeline =
-              pipelines.results?.find(
-                (p) => p.label.trim().toLowerCase() === "novos leads",
-              ) ?? null;
+              all.find((p) => norm(p.label) === "novos leads") ??
+              all.find((p) => p.id === "default") ??
+              all[0];
 
             if (!pipeline) {
-              throw new Error('pipeline "Novos Leads" não encontrado');
+              throw new Error("nenhum pipeline de negócios encontrado");
+            }
+            if (norm(pipeline.label) !== "novos leads") {
+              console.warn(
+                `Pipeline "Novos Leads" não encontrado; usando "${pipeline.label}" como fallback.`,
+              );
             }
 
             const firstStage = [...(pipeline.stages ?? [])].sort(
@@ -176,7 +187,9 @@ export const Route = createFileRoute("/api/contact")({
                 pipeline: pipeline.id,
                 ...(firstStage ? { dealstage: firstStage.id } : {}),
                 // "Qual produto tem mais interesse?" -> Descrição do negócio
-                ...(produto ? { description: produto } : {}),
+                description: produto
+                  ? `Produto de interesse: ${produto}`
+                  : "Lead do formulário do site",
               },
             };
 
@@ -198,8 +211,10 @@ export const Route = createFileRoute("/api/contact")({
             }
           } catch (dealErr) {
             // O contato já foi salvo — não falhamos o envio por causa do deal.
-            console.error("HubSpot deal creation failed", dealErr);
+            dealError = dealErr instanceof Error ? dealErr.message : String(dealErr);
+            console.error("HubSpot deal creation failed", dealError);
           }
+
 
           // "Informações adicionais" -> Nota associada ao contato e ao deal.
           let noteId: string | null = null;
