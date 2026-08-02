@@ -248,7 +248,14 @@ export const Route = createFileRoute("/api/contact")({
             }
           }
 
-          return json({ success: true, created, contactId, dealId, noteId });
+          return json({
+            success: true,
+            created,
+            contactId,
+            dealId,
+            noteId,
+            ...(dealError && isDev ? { dealError } : {}),
+          });
         } catch (err) {
           return hubspotError("Falha de comunicação com o HubSpot.", err, 502);
         }
