@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Linkedin, Instagram, Menu, X } from "lucide-react";
+import fundadorAsset from "@/assets/fundador-ka-lab.png.asset.json";
 const logoAsset = { url: '/logo.png' };
+
 
 const LINKEDIN_URL = "https://www.linkedin.com/company/kalabgrowth";
 const INSTAGRAM_URL = "https://www.instagram.com/kalabgrowth";
@@ -158,12 +160,10 @@ function Index() {
       {/* NAV */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/60">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <a href="#top" className="flex items-center gap-3" onClick={closeMenu}>
-            <img src={logoAsset.url} alt="KA LAB Growth" className="h-11 w-11 rounded-full" />
-            <span className="font-display text-lg tracking-wide">
-              KA <span className="text-gold-gradient">LAB</span>
-            </span>
+          <a href="#top" className="flex items-center" onClick={closeMenu} aria-label="KA LAB Growth">
+            <img src={logoAsset.url} alt="KA LAB Growth" className="h-16 w-16 md:h-20 md:w-20 rounded-full object-contain" />
           </a>
+
 
           <ul className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             {navLinks.map((l) => (
@@ -269,11 +269,12 @@ function Index() {
             <div className="absolute inset-0 -z-10 blur-3xl opacity-40"
                  style={{ background: "var(--gradient-gold)" }} />
             <img
-              src={logoAsset.url}
-              alt="Logo KA LAB Growth"
-              className="w-72 md:w-96 rounded-full drop-shadow-[0_20px_80px_rgba(212,175,55,0.35)]"
+              src={fundadorAsset.url}
+              alt="Fundador da KA LAB Growth"
+              className="w-72 md:w-96 rounded-2xl object-cover drop-shadow-[0_20px_80px_rgba(212,175,55,0.35)]"
             />
           </div>
+
         </div>
       </section>
 
