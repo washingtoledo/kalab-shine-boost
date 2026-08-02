@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Linkedin, Instagram, Menu, X } from "lucide-react";
+import fundadorAsset from "@/assets/fundador-ka-lab.png.asset.json";
 const logoAsset = { url: '/logo.png' };
+
 
 const LINKEDIN_URL = "https://www.linkedin.com/company/kalabgrowth";
 const INSTAGRAM_URL = "https://www.instagram.com/kalabgrowth";
@@ -267,11 +269,12 @@ function Index() {
             <div className="absolute inset-0 -z-10 blur-3xl opacity-40"
                  style={{ background: "var(--gradient-gold)" }} />
             <img
-              src={logoAsset.url}
-              alt="Logo KA LAB Growth"
-              className="w-72 md:w-96 rounded-full drop-shadow-[0_20px_80px_rgba(212,175,55,0.35)]"
+              src={fundadorAsset.url}
+              alt="Fundador da KA LAB Growth"
+              className="w-72 md:w-96 rounded-2xl object-cover drop-shadow-[0_20px_80px_rgba(212,175,55,0.35)]"
             />
           </div>
+
         </div>
       </section>
 
