@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Linkedin, Instagram, Menu, X } from "lucide-react";
-import fundadorAsset from "@/assets/fundador-ka-lab.png.asset.json";
+const fundadorSrc = "/fundador-ka-lab.jpg";
 const logoAsset = { url: '/logo.png' };
 
 
@@ -273,7 +273,7 @@ function Index() {
             <figure className="relative w-full max-w-md lg:max-w-none">
               <div className="relative overflow-hidden rounded-[2rem] border border-gold/30 bg-card shadow-[0_30px_120px_-20px_rgba(212,175,55,0.35)]">
                 <img
-                  src={fundadorAsset.url}
+                  src={fundadorSrc}
                   alt="Fundador da KA LAB Growth"
                   className="aspect-[4/5] w-full object-cover object-[50%_18%] grayscale-[15%] contrast-105"
                   loading="eager"
