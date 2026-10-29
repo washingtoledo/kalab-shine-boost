@@ -12,4 +12,12 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    define: {
+      // GA4 Measurement ID comes from the GOOGLE_ANALYTICS_MEASUREMENT_ID secret at build time.
+      "import.meta.env.VITE_GA_MEASUREMENT_ID": JSON.stringify(
+        process.env.GOOGLE_ANALYTICS_MEASUREMENT_ID ?? "G-SXQJKYPX7W",
+      ),
+    },
+  },
 });
