@@ -101,10 +101,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d04faff4-044b-4d33-a0dc-559303a29487/id-preview-d68e51af--1bf804cc-7aec-4d1f-9ba2-212bf692a10a.lovable.app-1784114495088.png" },
     ],
     scripts: [
-      { src: "https://www.googletagmanager.com/gtag/js?id=G-SXQJKYPX7W", async: true },
       {
-        children:
-          "window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-SXQJKYPX7W');",
+        src: `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`,
+        async: true,
+      },
+      {
+        children: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${GA_MEASUREMENT_ID}');`,
       },
     ],
     links: [
